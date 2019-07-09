@@ -31,13 +31,13 @@ class DiMuonMass(Module):
 		mu_plus = filter(lambda x: x.charge==1, muons)
 		mu_minus = filter(lambda x: x.charge==-1, muons)
 
-		if len(mu_plus)>0 and len(mu_minus)>0:
-			eventSum = mu_plus[0].p4()+mu_minus[0].p4()
-			self.hM.Fill(eventSum.M())
+		eventSum = mu_plus[0].p4()+mu_minus[0].p4()
+		self.hM.Fill(eventSum.M())
 
 		return True
 
 from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
 l=glob("/mnt/hadoop/cms/store/data/Run2018A/MuOnia/NANOAOD/Nano14Dec2018-v1/20000/*")
-p=PostProcessor(".",l,cut="",branchsel="keep_and_drop.txt",modules=[DiMuonMass()],histFileName="hM.root",histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
-p.run()
+cut="Sum$(Muon_charge>0)>0 && Sum$(Muon_charge<0)>0" #requesting at least a positive and a negative muon in each event
+p=PostProcessor(".",l,cut=		,branchsel="keep_and_drop.txt",modules=[DiMuonMass()],histFileName="hM.root",histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
+p.run(

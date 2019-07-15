@@ -39,5 +39,5 @@ class DiMuonMass(Module):
 from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
 l=glob("/mnt/hadoop/cms/store/data/Run2018A/MuOnia/NANOAOD/Nano14Dec2018-v1/20000/*")
 cut="Sum$(Muon_charge>0)>0 && Sum$(Muon_charge<0)>0" #requesting at least a positive and a negative muon in each event
-p=PostProcessor(".",l,cut=		,branchsel="keep_and_drop.txt",modules=[DiMuonMass()],histFileName="hM.root",histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
+p=PostProcessor(".",l,cut=cut,branchsel="keep_and_drop.txt",modules=[DiMuonMass()],histFileName="hM.root",histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
 p.run()

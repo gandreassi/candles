@@ -4,6 +4,7 @@
 import itertools, collections
 import subprocess, ast, json
 import ROOT as r
+from glob import glob
 
 def get_data(dset, year, version="Nano14Dec2018"):
 	print "Retrieving", dset, "data for year", year, "..."
@@ -33,5 +34,21 @@ def get_all_ana_data():
 
 	for dset, year in itertools.product(dsets, years):
 		return get_data(dset, year)
+
+
+###### LOCAL DATA (T3) ######
+#path dictionary
+path = {
+	"MuOnia" : {
+				"2018" : "/mnt/hadoop/cms/store/data/Run2018*/MuOnia/NANOAOD/Nano14Dec2018*/*/*"
+	},
+	"Charmonium" : {
+				"2018" : "/mnt/hadoop/cms/store/data/Run2018*/Charmonium/NANOAOD/Nano14Dec2018*/*/*"
+	}
+}
+def get_T3_data_files(dset, year):
+	#l=glob("/mnt/hadoop/cms/store/data/Run2018*/MuOnia/NANOAOD/Nano14Dec2018*/*/*")
+	data_files=glob(path[dset][year])
+	return data_files
 
 

@@ -3,7 +3,6 @@ r.gROOT.SetBatch(True)
 r.PyConfig.IgnoreCommandLineOptions = True
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
-from glob import glob
 
 class TriggerExplore(Module):
 	def __init__(self, lines):
@@ -58,12 +57,15 @@ class TriggerExplore(Module):
 		self.hTs.SetMinimum(0)
 		c.Modified()
 		r.gPad.BuildLegend(0.32,0.65,0.68,0.9,"")
-		c.SaveAs("plots/triggers.pdf")
+		c.SaveAs("plots/triggers_{dset}_{year}.pdf".format(dset=dset, year=year))
 
 
 #control sequence
 from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
-l=glob("/mnt/hadoop/cms/store/data/Run2018A/MuOnia/NANOAOD/Nano14Dec2018-v1/20000/*")
+from libraries.getDataset import get_T3_data_files
+dset = "MuOnia"
+year = "2018"
+l=get_T3_data_files(dset, year)
 cut="Sum$(Muon_charge>0)>0 && Sum$(Muon_charge<0)>0" #requesting at least a positive and a negative muon in each event
 lines = ["HLT_Dimuon10_Upsilon_Barrel_Seagulls",
 		"HLT_Dimuon14_Phi_Barrel_Seagulls",
@@ -72,6 +74,6 @@ lines = ["HLT_Dimuon10_Upsilon_Barrel_Seagulls",
 		"HLT_Dimuon24_Upsilon_noCorrL1",
 		"HLT_L2Mu23NoVtx_2Cha",
 		"HLT_L2Mu23NoVtx_2Cha_CosmicSeed"]
-p=PostProcessor(".",l,cut=cut,branchsel="keep_and_drop_trigger.txt",modules=[TriggerExplore(lines)],histFileName="hT.root",histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
+p=PostProcessor(".",l,cut=cut,branchsel="keep_and_drop_trigger.txt",modules=[TriggerExplore(lines)],histFileName="hT_{dset}_{year}.root".format(dset=dset, year=year),histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
 p.run()
 

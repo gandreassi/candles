@@ -7,14 +7,14 @@ from ROOT import RooFit as rf
 import numpy as np
 from ROOT import RooStats as rs
 
-f = r.TFile.Open("hists/jpsi_close.root")
+f = r.TFile.Open("hM.root ")
 h = f.Get("hists/hM")
-f2 = r.TFile.Open("muon_hists.root")
+f2 = r.TFile.Open("109E06BA-69D0-EE40-A601-60EBFFA53A8C.root ")
 tree = r.TTree()
 f2.GetObject("Events;1", tree)
 Muon_mass = r.RooRealVar("Muon_mass","Muon_mass",2.85,3.5)
 Muon_pt = r.RooRealVar("Muon_pt", "Muon_pt",0,100)
-data = r.RooDataSet("data", "data", tree, r.RooSetArg(Muon_mass, Muon_pt))
+data = r.RooDataSet("data", "data", tree, r.RooArgSet(Muon_mass, Muon_pt))
 
 w = r.RooWorkspace()
 x = w.factory('M[2.85,3.5]')

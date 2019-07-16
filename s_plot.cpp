@@ -6,10 +6,11 @@ void s_plot(){
 
 	RooAbsData::setDefaultStorageType(RooAbsData::Tree);//this allows to use the tree() method to get a tre from the roodataset at the end
 
-	TFile* f = TFile::Open("109E06BA-69D0-EE40-A601-60EBFFA53A8C.root");
+	TChain* chain = new TChain("Events");
+	chain->Add("109E06BA-69D0-EE40-A601-60EBFFA53A8C.root"); //for now it's just one file. For testing.
 
 	//Declare TTreeReader and the necessary variables
-	TTreeReader r("Events", f);
+	TTreeReader r(chain);
 	TTreeReaderValue<UInt_t> mus(r, "nMuon");
 	TTreeReaderArray<Float_t> pt(r, "Muon_pt");
 	TTreeReaderArray<Float_t> eta(r, "Muon_eta");
@@ -100,6 +101,5 @@ void s_plot(){
 	out_file->cd();
 	reduced_tree.Write();
 	out_file->Close();
-	f->Close();
 	exit(0);
 }

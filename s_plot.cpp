@@ -34,7 +34,7 @@ void s_plot(){
 	while (r.Next()) {
 		int c_prod=c[0]; //charge of the first muon
 		int index_second_muon=-1;
-		for (auto i : boost::irange(1,1+(int)*mus)){
+		for (int i=1; i<(int)*mus; i++){
 			if (c_prod*c[i]==-1){//opposite charge requirement. That"s going to be our second muon
 				index_second_muon=i;
 				break;

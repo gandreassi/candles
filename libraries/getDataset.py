@@ -11,7 +11,7 @@ def get_data(dset, year, version="Nano14Dec2018"):
 	q = "file dataset=/{dset}*/Run{year}*-{version}*/NANOAOD".format(dset=dset, year=year, version=version)
 	out = subprocess.Popen(['dasgoclient', '-query', q, '-json'], 
 	           stdout=subprocess.PIPE, 
-	           stderr=subprocess.STDOUT)
+	           stderr=subprocess.PIPE)
 	stdout,stderr = out.communicate()
 	data = json.loads(stdout)
 	data_files = ["root://cms-xrd-global.cern.ch/"+d["file"][0]["name"] for d in data]

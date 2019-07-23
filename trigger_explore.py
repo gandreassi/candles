@@ -63,17 +63,29 @@ class TriggerExplore(Module):
 #control sequence
 from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
 from libraries.getDataset import get_T3_data_files
-dset = "MuOnia"
+dset = "Charmonium"
 year = "2018"
 l=get_T3_data_files(dset, year)
+l=l[:2]
 cut="Sum$(Muon_charge>0)>0 && Sum$(Muon_charge<0)>0" #requesting at least a positive and a negative muon in each event
-lines = ["HLT_Dimuon10_Upsilon_Barrel_Seagulls",
-		"HLT_Dimuon14_Phi_Barrel_Seagulls",
-		"HLT_Dimuon12_Upsilon_y1p4",
-		"HLT_Dimuon12_Upsilon_eta1p5",
-		"HLT_Dimuon24_Upsilon_noCorrL1",
-		"HLT_L2Mu23NoVtx_2Cha",
-		"HLT_L2Mu23NoVtx_2Cha_CosmicSeed"]
+lines = [
+		# "HLT_Dimuon10_Upsilon_Barrel_Seagulls",
+		# "HLT_Dimuon14_Phi_Barrel_Seagulls",
+		# "HLT_Dimuon12_Upsilon_y1p4",
+		# "HLT_Dimuon12_Upsilon_eta1p5",
+		# "HLT_Dimuon24_Upsilon_noCorrL1",
+		# "HLT_L2Mu23NoVtx_2Cha",
+		# "HLT_L2Mu23NoVtx_2Cha_CosmicSeed",
+
+		"HLT_DoubleMu4_Jpsi_Displaced",
+		"HLT_DoubleMu4_Jpsi_NoVertexing",
+		"HLT_DoubleMu4_JpsiTrkTrk_Displaced",
+		"HLT_DoubleMu4_3_Jpsi",
+		"HLT_DoubleMu4_PsiPrimeTrk_Displaced",
+		"HLT_DoubleMu2_Jpsi_DoubleTkMu0_Phi",
+		"HLT_ZeroBias_IsolatedBunches",
+
+		]
 p=PostProcessor(".",l,cut=cut,branchsel="keep_and_drop_trigger.txt",modules=[TriggerExplore(lines)],histFileName="hT_{dset}_{year}.root".format(dset=dset, year=year),histDirName="hists", noOut=True) #noOut prevents from writing cut tree to disk
 p.run()
 

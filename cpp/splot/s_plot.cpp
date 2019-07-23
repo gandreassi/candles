@@ -1,6 +1,19 @@
-#include <boost/range/irange.hpp>
-# include <iostream>
+#include <iostream>
 #include <cmath>
+#include "RooAbsData.h"
+#include "TChain.h"
+#include "TTreeReader.h"
+#include "TTreeReaderArray.h"
+#include "RooRealVar.h"
+#include "RooDataSet.h"
+#include "TLorentzVector.h"
+#include "TCanvas.h"
+#include "RooWorkspace.h"
+#include "RooAbsPdf.h"
+#include "RooPlot.h"
+#include "RooStats/SPlot.h"
+#include "RooTreeDataStore.h"
+#include "TFile.h"
 
 void s_plot(){
 
@@ -86,6 +99,7 @@ void s_plot(){
 	data->plotOn(frame);
 	w.pdf("model")->plotOn(frame);
 	frame->Draw();
+	canvas->SaveAs("plots/s_fit.pdf");
 
 
 	RooStats::SPlot *sData = new RooStats::SPlot("sData", "An SPlot", *data, w.pdf("model"), RooArgList(s, b));
@@ -96,6 +110,7 @@ void s_plot(){
 
 	TCanvas *canvas_sw = new TCanvas("c_sw", "c_sw", 800, 600);
 	reduced_tree.Draw(M->GetName(), sweights[0].GetName());
+	canvas_sw->SaveAs("plots/sw_sig.pdf");
 
 	TFile* out_file = new TFile("reducedTree.root", "recreate");
 	out_file->cd();

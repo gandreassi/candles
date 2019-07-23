@@ -14,13 +14,15 @@
 #include "RooStats/SPlot.h"
 #include "RooTreeDataStore.h"
 #include "TFile.h"
+#include "TAxis.h"
+#include "TPad.h"
 
 void s_plot(){
 
 	RooAbsData::setDefaultStorageType(RooAbsData::Tree);//this allows to use the tree() method to get a tre from the roodataset at the end
 
 	TChain* chain = new TChain("Events");
-	chain->Add("109E06BA-69D0-EE40-A601-60EBFFA53A8C.root"); //for now it's just one file. For testing.
+	chain->Add("/mnt/hadoop/scratch/gandreas/Charmonium_Dimuon0_LowMass_skimmed/*.root");
 
 	//Declare TTreeReader and the necessary variables
 	TTreeReader r(chain);
@@ -32,7 +34,7 @@ void s_plot(){
 	TTreeReaderArray<Int_t> c(r, "Muon_charge");
 
 	///RooFit stuff
-	const float M_min =2.8;
+	const float M_min =2.5;
 	const float M_max =3.5;
 	RooRealVar *M = new RooRealVar("M","m(#mu#mu)",M_min, M_max);
 	RooRealVar *pt1 = new RooRealVar("mu1_pt","mu1_pt", -1);
@@ -78,12 +80,12 @@ void s_plot(){
 	RooWorkspace w;
 	w.import(*M);
 	w.import(*data);
-	w.factory("RooCBShape::cb(M,mu[3.05,3,3.2],sigma0[0.01,0.005,0.05], alpha[0.1,5],n[1,5])");
+	w.factory("RooCBShape::cb(M,mu[3.05,3,3.2],sigma0[0.01,0.005,0.05], alpha[0.1,3],n[1,5])");
 	w.factory("Gaussian::g1(M,mu,sigma1[0.07,0.01,0.15])");
 	w.factory("Gaussian::g2(M,mu,sigma2[0.07,0.01,0.15])");
-	w.factory("Gaussian::g3(M,mu,sigma3[0.01,0.005,0.1])");
-	w.factory("SUM::sig(cb,gf1[0.3,0.1,1.0]*g1, gf2[0.3,0.1,1.0]*g2, gf3[0.3,0.1,1.0]*g3)");
-	w.factory("Exponential::e(M,tau1[-1.5,-2,-0.01])");
+	///w.factory("Gaussian::g3(M,mu,sigma3[0.01,0.005,0.1])");
+	w.factory("SUM::sig(cb,gf1[0.3,0.1,1.0]*g1, gf2[0.3,0.01,1.0]*g2)");
+	w.factory("Exponential::e(M,tau1[-2,-3,-0.1])");
 	float nentries = data->sumEntries();
 	RooRealVar s("s", "signal yield", 0.9*nentries, 0, nentries); //signal yield
 	RooRealVar b("b", "background yield", 0.1*nentries, 0, nentries); //background yield
@@ -95,10 +97,43 @@ void s_plot(){
 
 
 	auto frame = M->frame();
-	TCanvas *canvas = new TCanvas("fit", "fit", 800, 600);
+	frame->SetTitle("");
 	data->plotOn(frame);
 	w.pdf("model")->plotOn(frame);
+	auto hpull = frame->pullHist();
+	w.pdf("model")->plotOn(frame, RooFit::Components("e"), RooFit::LineColor(kRed), RooFit::LineStyle(kDashed));
+	w.pdf("model")->plotOn(frame, RooFit::Components("sig"), RooFit::LineColor(kGreen), RooFit::LineStyle(kDashed));
+
+	frame->GetXaxis()->SetTitleSize(0);
+	frame->GetXaxis()->SetLabelSize(0);
+	auto pframe = M->frame();
+	pframe->SetTitle("");
+	pframe->GetXaxis()->SetLabelSize(0.1);
+	pframe->GetXaxis()->SetTitle("m(#mu#mu)");
+	pframe->GetXaxis()->SetTitleSize(0.15);
+	pframe->GetYaxis()->SetLabelSize(0.1);
+	pframe->GetYaxis()->SetTitle("Pool  ");
+	pframe->GetYaxis()->SetTitleSize(0.15);
+	pframe->GetYaxis()->SetTitleOffset(0.3);
+	pframe->addPlotable(hpull,"P");
+
+	TCanvas *canvas = new TCanvas("fit", "fit", 800, 600);;
+
+	TPad* pad1 = new TPad("pad1", "pad1",0,0.25,1,1);
+	pad1->SetBottomMargin(0.02);
+	pad1->cd();
 	frame->Draw();
+
+	TPad* pad2 = new TPad("pad2", "pad2",0,0,1,0.25);
+	pad2->SetTopMargin(0.05);
+	pad2->SetBottomMargin(0.4);
+	pad2->cd();
+	pframe->Draw();
+
+	canvas->cd();
+	pad1->Draw();
+	pad2->Draw();
+	canvas->Draw();
 	canvas->SaveAs("plots/s_fit.pdf");
 
 

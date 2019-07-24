@@ -19,10 +19,11 @@
 
 void s_plot(){
 
-	RooAbsData::setDefaultStorageType(RooAbsData::Tree);//this allows to use the tree() method to get a tre from the roodataset at the end
+	RooAbsData::setDefaultStorageType(RooAbsData::Tree);//this allows to use the tree() method to get a tree from the roodataset at the end
 
 	TChain* chain = new TChain("Events");
 	chain->Add("/mnt/hadoop/scratch/gandreas/Charmonium_Dimuon0_LowMass_skimmed/*.root");
+	//chain->Add("/mnt/hadoop/scratch/gandreas/Charmonium_Dimuon0_LowMass_skimmed/09403A9F-B753-EC40-AA01-3C8CA976F23E_Skim.root");   (for testing)
 
 	//Declare TTreeReader and the necessary variables
 	TTreeReader r(chain);
@@ -39,7 +40,11 @@ void s_plot(){
 	RooRealVar *M = new RooRealVar("M","m(#mu#mu)",M_min, M_max);
 	RooRealVar *pt1 = new RooRealVar("mu1_pt","mu1_pt", -1);
 	RooRealVar *pt2 = new RooRealVar("mu2_pt","mu2_pt", -1);
-	RooDataSet *data = new RooDataSet("data", "data", RooArgSet(*M,*pt1,*pt2));
+	RooRealVar *eta1 = new RooRealVar("mu1_eta","mu1_eta", -1);
+	RooRealVar *eta2 = new RooRealVar("mu2_eta","mu2_eta", -1);
+	RooRealVar *dlt_phi = new RooRealVar("dlt_phi","dlt_phi", -1);
+	RooRealVar *nMuon = new RooRealVar("nMuon","nMuon", -1);
+	RooDataSet *data = new RooDataSet("data", "data", RooArgSet(*M,*pt1,*pt2,*eta1,*eta2,*dlt_phi,*nMuon));
 
 
 	//Loop on events...
@@ -70,7 +75,21 @@ void s_plot(){
 				*M=DiMuon_mass;
 				*pt1=pt[0];
 				*pt2=pt[index_second_muon];
-				data->add(RooArgSet(*M, *pt1, *pt2));
+				*eta1=eta[0];
+				*eta2=eta[index_second_muon];
+				//getting signed delta phi of muons (pos-neg) and adjusting for pi, -pi split
+				float temp_dlt_phi=(phi[0]-phi[index_second_muon])*c[0];
+				if (abs(temp_dlt_phi)>M_PI){
+				  if (temp_dlt_phi>0){
+				    temp_dlt_phi=temp_dlt_phi-2*M_PI;
+				  }
+				  else {
+				    temp_dlt_phi=temp_dlt_phi+2*M_PI;
+				  }
+				}
+				*dlt_phi=temp_dlt_phi;
+				*nMuon=(int)*mus;
+				data->add(RooArgSet(*M, *pt1, *pt2, *eta1, *eta2, *dlt_phi, *nMuon));
 			}
 		}
 		if (++i>max_evts and max_evts>0) break;
